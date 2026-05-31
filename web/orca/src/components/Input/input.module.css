@@ -1,0 +1,17 @@
+.input-container{
+
+}
+
+.spotlight_input {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    font-size: 16px;
+    background-color: #f1f1f1;
+    margin-right: 20px;
+    max-width: 90%;
+    white-space: initial;
+  }

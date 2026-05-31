@@ -1,0 +1,14 @@
+celery
+redis
+python-dotenv
+pydantic-settings
+qdrant_client
+openai
+llama-index
+llama-index-embeddings-huggingface
+llama-index-vector-stores-qdrant
+fastembed
+pytesseract
+PyMuPDF
+pdfplumber
+pillow

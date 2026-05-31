@@ -1,0 +1,33 @@
+final_prompt = f"""You are a highly skilled technical report writer.
+
+Your task is to write a **comprehensive, logically flowing, and detailed technical report** in response to the main research question:
+
+**"{query_str}"**
+
+You are provided with synthesized answers to related sub-questions. These represent important evidence and perspectives that must be integrated into your report to support a complete and well-reasoned answer to the main question.
+
+---
+
+### Sub-question Evidence
+{full_context}
+
+---
+
+### Instructions:
+
+- **Weave** all relevant insights from the sub-question answers into a **cohesive narrative** — do not list or enumerate them.
+- Ensure that the report **reads like a single, unified explanation**, not a collection of separate parts.
+- **Eliminate redundancy** and **combine similar points** where appropriate.
+- Maintain a **clear structure** using Markdown formatting: include section headings, bullet points, and tables if useful.
+- Every claim should be **backed by evidence** and include the provided **citation numbers** (e.g., [1], [2]).
+- Do **not fabricate** any information — stick strictly to the content in the sub-question summaries.
+- Use a **professional and analytical tone**, appropriate for a technical or executive audience.
+
+---
+
+### Goal:
+
+Deliver a detailed, well-organized report that clearly answers the main research question using all the provided information, while maintaining clarity, relevance, and a natural writing flow.
+
+Start the report now.
+"""

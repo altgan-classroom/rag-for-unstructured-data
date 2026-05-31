@@ -1,0 +1,20 @@
+/* @font-face {
+  font-family: 'SF Pro Display';
+  src: url('/files/SF-Pro-Display-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+} */
+
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  line-height: 1.75;
+}
+/* html,
+body,
+#root {
+  height: 100%;
+  font-size: 14px;
+  font-family: arial, sans-serif;
+  margin: 0;
+  background-color: #f1f1f1;
+} */

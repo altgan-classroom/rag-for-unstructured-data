@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+
+  # --------------------------------------------------------------------------
+  # Vector database. Stores chunk embeddings + metadata.
+  # Persistent storage lives in ../data/vector_db on the host.
+  # --------------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:v1.8.3
+    container_name: qdrant_db_orca
+    restart: unless-stopped
+    environment:
+      - QDRANT_FULL_SCAN_THRESHOLD=10000
+      - QDRANT_SEARCH_THREADS=4
+      - QDRANT_MAX_OPTIMIZATION_THREADS=8
+      - QDRANT_SNAPSHOT_INTERVAL_SEC=86400
+      - QDRANT_SNAPSHOT_PATH=/snapshots
+      - QDRANT_ENABLE_AUTH=true
+      - QDRANT_ENABLE_TELEMETRY=true
+      - QDRANT__LOG_LEVEL=INFO
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT__SERVICE__JWT_RBAC=true
+    volumes:
+      - ../data/vector_db:/qdrant/storage
+      - ../data/snapshots:/snapshots
+      - ../data/logs/vector_db:/qdrant/logs
+    ports:
+      - "6333:6333"   # HTTP API
+      - "6334:6334"   # gRPC API
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'Success'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - deployment_network
+
+  # --------------------------------------------------------------------------
+  # Celery broker (Redis). Receives ingest tasks from the enqueue script
+  # and hands them to the ingest worker.
+  # --------------------------------------------------------------------------
+  redis:
+    image: redis:latest
+    container_name: redis_db
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - deployment_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+
+  # --------------------------------------------------------------------------
+  # Ingest worker (Celery). Picks up enqueued documents, extracts text,
+  # chunks, and writes embeddings into Qdrant.
+  # --------------------------------------------------------------------------
+  ingest:
+    build:
+      context: ../
+      dockerfile: core/ingest/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    environment:
+      - INGEST_REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    env_file:
+      - .env
+    volumes:
+      - ../core:/app/core
+      - ../tests:/app/tests
+      - ../scripts:/app/scripts
+      - ../data:/app/data
+      - ../data/persist:/data/persist
+    command: celery -A core.ingest.tasks worker --loglevel=info
+    networks:
+      - deployment_network
+
+  # --------------------------------------------------------------------------
+  # Retrieval API. Not started by default for the ingest step; brought up
+  # in a later phase (`docker compose up -d retrieval_api`).
+  # --------------------------------------------------------------------------
+  retrieval_api:
+    build:
+      context: ../
+      dockerfile: core/retrieval_api/Dockerfile
+    container_name: retrieval_api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ../core:/app/core
+      - ../data:/app/data/
+    command: >
+      sh -c "PYTHONPATH=/app uvicorn core.retrieval_api.app:app --host 0.0.0.0 --port 8080 --log-level info --reload"
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    networks:
+      - deployment_network
+    profiles: ["api", "all"]
+
+  # --------------------------------------------------------------------------
+  # Web UI. Brought up in the final phase (`docker compose --profile web up -d`).
+  # --------------------------------------------------------------------------
+  web:
+    build:
+      context: ../web/orca
+      dockerfile: Dockerfile
+    container_name: orca_web
+    ports:
+      - "3002:80"
+    environment:
+      - REACT_APP_API_URL=http://retrieval_api:8080
+      - NODE_ENV=production
+    networks:
+      - deployment_network
+    depends_on:
+      - retrieval_api
+    profiles: ["web", "all"]
+
+
+networks:
+  deployment_network:
+    driver: bridge
+
+volumes:
+  redis_data:

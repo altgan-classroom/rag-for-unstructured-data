@@ -1,0 +1,6 @@
+# One filename per line. Lines starting with `#` are ignored.
+# Each name must match a file in the Hugging Face dataset
+# (https://huggingface.co/datasets/Altgan/rag-for-unstructured-data).
+1211523415_20090507_CCS1_Well_Completion_Report.pdf
+1211523415_20090928_CCS1_Injection_Log_Advisor_Suite1_Final.pdf
+1211523415_20090928_CCS1_Injection_Log_Advisor_Suite2_Final.pdf

@@ -1,0 +1,38 @@
+.citation {
+    //background-color: #f1f1f1;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    height: 2.5em;
+    border-radius: 8px;
+    //border: 4px solid #f1f1f1;
+    margin-right: 4px;
+    line-clamp: 2;
+    line-height: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // overflow: hidden;
+    // text-overflow: ellipsis;
+    &:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+}
+.sourceFile {
+    cursor: pointer;
+    margin-right: 4px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    overflow: scroll;
+}
+.row {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    margin: 4px 4px 4px 0px;
+    color: #000;
+}
