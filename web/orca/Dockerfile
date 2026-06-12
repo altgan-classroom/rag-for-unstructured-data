@@ -15,8 +15,10 @@ FROM nginx:alpine
 # Copy the build output to Nginx's html directory
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy a custom nginx config if you have one (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Install our SPA + /v1 reverse-proxy config. It's a `server {}` block, so it
+# goes in conf.d (included by the stock nginx http{} context) — NOT the
+# top-level nginx.conf.
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80

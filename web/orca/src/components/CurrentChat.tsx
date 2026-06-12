@@ -6,7 +6,7 @@ function CurrentChat({query}: {query: string}) {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch('http://0.0.0.0:8000/v1/chat', {
+        const response = await fetch('/v1/chat', {
           method: 'POST',
           headers: {
             Accept: "application/json, text/plain, */*", // indicates which files we are able to understand

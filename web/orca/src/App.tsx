@@ -80,7 +80,9 @@ const App = () => {
               //persist_dir: "v6_persist"
               });
             const endpoint = mode === 'answer' ? 'v1/chat' : 'v1/report';
-            const response = await fetch(`http://localhost:8080/${endpoint}`, {
+            // Same-origin relative path: nginx proxies /v1/ -> retrieval_api:8080
+            // so the request rides the same (preview) URL the page is served from.
+            const response = await fetch(`/${endpoint}`, {
                     method: "post",
                     headers: {
                     "Content-Type": "application/json",

@@ -3,9 +3,8 @@ async function* getCompletion(
     chatId: string,
     signal?: AbortSignal,
   ) {
-    const url = new URL(
-      "http://0.0.0.0:8000/v1/chat",
-    );
+    // Same-origin relative path (nginx proxies /v1/ -> retrieval_api:8080).
+    const url = new URL("/v1/chat", window.location.origin);
     url.searchParams.append("prompt", prompt);
   
     const res = await fetch(url, {
