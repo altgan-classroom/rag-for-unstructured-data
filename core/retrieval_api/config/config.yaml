@@ -27,21 +27,21 @@ OPENAI:
 
 OPENROUTER:
   REPORT:
-    MODEL_NAME: meta-llama/llama-3-70b-instruct
+    MODEL_NAME: meta-llama/llama-3.3-70b-instruct
     MAX_TOKENS: 4096
     TEMPERATURE: 0.3
     TOP_P: 0.7
     REQUEST_TIMEOUT: 180.0
     CONTEXT_WINDOW: 8192
   CHAT:
-    MODEL_NAME: meta-llama/llama-3-70b-instruct
+    MODEL_NAME: meta-llama/llama-3.3-70b-instruct
     MAX_TOKENS: 2048
     TEMPERATURE: 0.6
     TOP_P: 0.7
     REQUEST_TIMEOUT: 180.0
     CONTEXT_WINDOW: 8192
   SMALL_MODEL:
-    MODEL_NAME: meta-llama/llama-3-8b-instruct
+    MODEL_NAME: meta-llama/llama-3.1-8b-instruct
     MAX_TOKENS: 512
     TEMPERATURE: 0.5
     TOP_P: 0.7

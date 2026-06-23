@@ -30,6 +30,20 @@ pageNumber: number;
 score: number;
 }
 
+// Base URL for ingested source documents.
+const DOCS_BASE_URL = "https://rag-prod-ingested-docs.s3.ap-south-1.amazonaws.com/";
+
+// Convert a stored doc_name into the actual S3 object key.
+// doc_name may already include its extension (e.g. "foo.pdf") or be a
+// markdown derivative ("foo.md") generated from a source PDF. Avoid blindly
+// appending ".pdf" — that produced ".pdf.pdf" keys that 404 / AccessDenied.
+function toPdfKey(docName: string): string {
+  if (!docName) return docName;
+  if (docName.toLowerCase().endsWith('.pdf')) return docName;        // already a pdf key
+  if (docName.toLowerCase().endsWith('.md')) return docName.slice(0, -3) + '.pdf'; // md derived from pdf
+  return docName + '.pdf';                                           // extensionless -> pdf
+}
+
 function createWordMatchRegex(searchString: string): RegExp {
     // Split the searchString into words
     const words = searchString.split(/\s+/).filter(word => word.length > 4);
@@ -98,7 +112,7 @@ export const getPDFLinks = (citations: string ) : ({pdfURL: string, pageNum: str
     const jsonString = JSON.parse(JSON.parse(JSON.stringify(citations)));
     return Object.keys(jsonString).map((key, index) => {
       return {
-        pdfURL : "https://rag-prod-ingested-docs.s3.ap-south-1.amazonaws.com/"+jsonString[key]["doc_name"]+".pdf",
+        pdfURL : DOCS_BASE_URL + toPdfKey(jsonString[key]["doc_name"]),
         pageNum : jsonString[key]["page_num"],
       }
     })
@@ -125,12 +139,11 @@ export const Citations = ({response}:{response: string}): any => {
         {Object.keys(jsonString).map((key,index)=>{
             console.log(key);
             console.log(jsonString[key]);
-            const fileName = jsonString[key]["doc_name"].endsWith('.md') 
-                ? jsonString[key]["doc_name"].slice(0, -3) 
-                : jsonString[key]["doc_name"];
-            return (<div className={`flex flex-col p-1 rounded-lg bg-slate-100 border border-solid border-slate-300 shadow-md hover:shadow-lg transition-shadow duration-300 ${styles.row}`} 
+            const pdfKey = toPdfKey(jsonString[key]["doc_name"]);
+            const fileName = pdfKey.endsWith('.pdf') ? pdfKey.slice(0, -4) : pdfKey;
+            return (<div className={`flex flex-col p-1 rounded-lg bg-slate-100 border border-solid border-slate-300 shadow-md hover:shadow-lg transition-shadow duration-300 ${styles.row}`}
                          key={key+index}
-                         onClick={() => window.open(`https://rag-prod-ingested-docs.s3.ap-south-1.amazonaws.com/${fileName}.pdf#page=${jsonString[key]["page_num"]}`, '_blank')}
+                         onClick={() => window.open(`${DOCS_BASE_URL}${pdfKey}#page=${jsonString[key]["page_num"]}`, '_blank')}
                     >
                       <div className={`text-white text-sm bg-slate-100 font-small ${styles.citation}`}>
                           <div className="truncate">
